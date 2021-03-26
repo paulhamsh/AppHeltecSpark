@@ -112,6 +112,7 @@ class SparkAppIO
     uint8_t ser_buf[MAX_SER_BUFFER];
     int ser_pos;
     int ser_len;
+    int ser_state;
 
 
   private:

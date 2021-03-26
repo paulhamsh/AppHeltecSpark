@@ -13,6 +13,7 @@ void SparkComms::start_ser() {
   uint8_t b;
   
   ser = new HardwareSerial(2); 
+  // 5 is rx, 18 is tx
   ser->begin(HW_BAUD, SERIAL_8N1, 5, 18);
 
   while (ser->available())

@@ -73,6 +73,7 @@ SparkAppIO::SparkAppIO() {
   ob_last_sent_time = millis();
 
   ser_pos = 0;
+  ser_state = 0;
   ser_len = -1;
 }
 
@@ -93,12 +94,27 @@ void SparkAppIO::process()
   process_in_blocks();
   process_in_chunks();
 
+  /*
+  if (!in_message.is_empty()) {
+    Serial.print("FROM SPARK ");
+    in_message.dump2();
+  }
+  
+  
+  if (!out_message.is_empty()) {
+    Serial.print("TO SPARK ");
+    out_message.dump2();
+  }
+
+  
   if (!ob_ok_to_send && (millis() - ob_last_sent_time > 500)) {
     DEBUG("Timeout on send");
     ob_ok_to_send = true;
   }
+*/
 
   // process outputs
+  
   process_out_chunks();
   process_out_blocks();
 }
@@ -119,17 +135,37 @@ void SparkAppIO::process_in_blocks() {
 
     // **** PASSTHROUGH OF SERIAL TO BLUETOOTH ****
 
-    ser_buf[ser_pos++] = b;
-    if (ser_pos == 7) {
-      ser_len = b; 
+    if (ser_state == 0 && b == 0x01) {
+      ser_state = 1;
     }
-    if (ser_pos == ser_len) {
-      comms->bt->write(ser_buf, ser_pos);  
-      ser_pos = 0;
-      ser_len = -1;  
+    else if (ser_state == 1) {
+      if (b == 0xfe) {
+        ser_state = 2;
+        ser_buf[0] = 0x01;
+        ser_buf[1] = 0xfe;
+        ser_pos = 2;
+      }
+      else 
+        ser_state = 0;
+    }
+    else if (ser_state == 2) {
+      if (ser_pos == 6) {
+        ser_len = b;
+      }
+      ser_buf[ser_pos++] = b;
+      if (ser_pos == ser_len) {
+        comms->bt->write(ser_buf, ser_pos);   
+        ser_pos = 0;
+        ser_len = -1; 
+        ser_state = 0; 
+      }
+    }
+    if (ser_pos > MAX_SER_BUFFER) {
+      Serial.println("APPIO IO_PROCESS_IN_BLOCKS OVERRUN");
+      while (true);
     }
 
-
+    // **** END PASSTHROUGH ****
 
     // check the 7th byte which holds the block length
     if (rb_state == 6) {

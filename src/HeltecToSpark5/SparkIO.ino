@@ -74,6 +74,10 @@ SparkIO::SparkIO() {
   oc_seq = 0x20;
   ob_ok_to_send = true;
   ob_last_sent_time = millis();
+  
+  bt_state = 0;
+  bt_pos = 0;
+  bt_len = -1;
 }
 
 SparkIO::~SparkIO() {
@@ -97,8 +101,11 @@ void SparkIO::process()
   }
 
   // process outputs
+
+ 
   process_out_chunks();
   process_out_blocks();
+
 }
 
 
@@ -118,17 +125,39 @@ void SparkIO::process_in_blocks() {
     
     // **** PASSTHROUGH OF SERIAL TO BLUETOOTH ****
 
-    bt_buf[bt_pos++] = b;
-    if (bt_pos == 7) {
-      bt_len = b; 
+
+    if (bt_state == 0 && b == 0x01) 
+      bt_state = 1;
+    else if (bt_state == 1) {
+      if (b == 0xfe) {
+        bt_state = 2;
+        bt_buf[0] = 0x01;
+        bt_buf[1] = 0xfe;
+        bt_pos = 2;
+      }
+      else
+        bt_state = 0;
     }
-    if (bt_pos == bt_len) {
-      comms->ser->write(bt_buf, bt_pos);  
-      bt_pos = 0;
-      bt_len = -1;  
+    else if (bt_state == 2) {
+      if (bt_pos == 6) {
+        bt_len = b;
+      }
+      bt_buf[bt_pos++] = b;
+      if (bt_pos == bt_len) {
+        comms->ser->write(bt_buf, bt_pos);
+        bt_pos = 0;
+        bt_len = -1; 
+        bt_state = 0; 
+      }
     }
 
+    if (bt_pos > MAX_BT_BUFFER) {
+      Serial.println("SPARKIO IO_PROCESS_IN_BLOCKS OVERRUN");
+      while (true);
+    }
 
+    // **** END PASSTHROUGH ****
+    
     // check the 7th byte which holds the block length
     if (rb_state == 6) {
       rb_len = b - 16;

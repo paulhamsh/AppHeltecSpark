@@ -10,14 +10,14 @@
 #define PGM_NAME "Heltec - Spark"
 #define SCR_HEIGHT 10
 
-#define CONNECT_PIN 23
+#define CONNECT_PIN 19
 
 uint8_t ser_byte, bt_byte;
 bool app_connected;
 
 int pos;
 int scr_line;
-uint8_t pre, eff;
+uint8_t pre, eff, drive;
 
 uint8_t buf[BUF_MAX];
 
@@ -33,7 +33,8 @@ uint8_t selected_preset;
 
 uint8_t b;
 int i, j, p;
-int v1,v2;
+int v[5], vo[5];
+int pin[]{32,37,39,38,36};
 
 unsigned int cmdsub;
 SparkMessage msg;
@@ -41,12 +42,19 @@ SparkPreset preset;
 SparkPreset presets[6];
 
 char spark_amps[][STR_LEN]{"RolandJC120", "Twin", "ADClean", "94MatchDCV2", "Bassman", "AC Boost", "Checkmate",
-                           "TwoStoneSP50", "Deluxe65", "Plexi", "OverDrivenJM45", "OverDrivenLuxVerb",
-                           "Bogner", "OrangeAD30","AmericanHighGain", "SLO100", "YJM100", "Rectifier",
-                           "EVH", "SwitchAxeLead", "Invader", "BE101", "Acoustic", "AcousticAmpV2", "FatAcousticV2",
-                           "FlatAcoustic", "GK800", "Sunny3000", "W600", "Hammer500"};
+                           "TwoStoneSP50", "Deluxe65", "Plexi", "OverDrivenJM45", // "OverDrivenLuxVerb",
+                           "Bogner", "OrangeAD30", //"AmericanHighGain", 
+                           "SLO100", "YJM100", "Rectifier",
+                           "EVH", "SwitchAxeLead", "Invader", "BE101", "Acoustic", "AcousticAmpV2", //"FatAcousticV2", "FlatAcoustic", 
+                           "GK800", "Sunny3000", "W600", "Hammer500"};
+
+char spark_drives[][STR_LEN]{"Booster", "DistortionTS9", //"Overdrive", 
+                             "Fuzz", "ProCoRat", "BassBigMuff",
+                             "GuitarMuff", // "MaestroBassmaster", 
+                             "SABdriver"};
 
 
+/*
 byte get_serial[]{0x01, 0xfe, 0x00, 0x00, 0x53, 0xfe, 0x17, 0x00,
                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
                   0xf0, 0x01, 0x01, 0x01, 0x02, 0x23, 0xf7};
@@ -61,7 +69,7 @@ byte upd_preset[]{0x01, 0xfe, 0x00, 0x00, 0x41, 0xff, 0x1a, 0x00,
                   0xf0, 0x01, 0x01, 0x01, 0x03, 0x38, 
                   0x00, 0x00, 0x01, 0xf7}; 
 
-
+*/
 void printit(char *str) {
   if (scr_line >= 8) {
     Heltec.display->clear();
@@ -92,37 +100,7 @@ void dump_preset(SparkPreset preset) {
     Serial.println();
   }
 }
-void flush_in() {
-  bt_byte = spark_io.comms->bt->read();
-  while (bt_byte != 0xf7)
-    bt_byte = spark_io.comms->bt->read();
-}
 
-void send_preset(uint8_t pres) {
-//  set_preset[24] = pres;
-//  spark_io.bt.write(set_preset, 26);
-//  flush_in(); 
-
-  spark_io.change_hardware_preset(pres);
-  spark_io.process();
-
-  
-//  upd_preset[24] = pres;
-  // this is actually the 8 bit xor checksum, 
-  // but for this short message it is just the same as the preset number.  
-//  upd_preset[19] = pres;  
-// this was the fix 
-//  upd_preset[19] = 0x01; 
-
-//  upd_preset[18] = seq++;
-//  if (pres == 0) upd_preset[19] = 0x01; // this works
-//  if (pres == 1) upd_preset[19] = 0x02; // this works
-//  if (pres == 2) upd_preset[19] = 0x01; // this works
-//  if (pres == 3) upd_preset[19] = 0x01; // 0x02 works, 0x01, 0x04 works - just not 0x03
-//  app_io.bt->write(upd_preset, 26);
-  app_io.change_hardware_preset(pres);
-  app_io.process();
-}
 
 void setup() {
 
@@ -155,12 +133,15 @@ void setup() {
   pos = 0;
   count = millis();
   pre = 0;
-  eff = 1;
+  eff = 0;
+  drive = 0;
   this_delay = 5000;
   app_connected = false;
 
-  v1 = 0;
-  v2 = 0;
+  for (i = 0; i < 5; i++) {
+    v[i]=0;
+    vo[i]=0;
+  }
 }
 
 
@@ -211,6 +192,16 @@ void loop() {
       Serial.println(selected_preset, HEX);
 //      dump_preset(presets[5]);
     }
+
+    if (cmdsub == 0x0310) {
+      selected_preset = msg.param2;
+      if (selected_preset == 0x7f) 
+        selected_preset=4;
+      presets[5] = presets[selected_preset];
+      Serial.print("Hadware preset is: ");
+      Serial.println(selected_preset, HEX);
+//      dump_preset(presets[5]);
+    }
   }
 
    if (app_io.get_message(&cmdsub, &msg, &preset)) { //there is something there
@@ -256,17 +247,19 @@ void loop() {
   
   
   if (app_connected && ((millis() - count) > this_delay)) {
-    this_delay = 200;
+
 
     if (digitalRead(12) == LOW) {
+      this_delay = 400;
       spark_io.change_effect(presets[5].effects[3].EffectName, spark_amps[eff]);
       app_io.change_effect(presets[5].effects[3].EffectName, spark_amps[eff]);
       strcpy(presets[5].effects[3].EffectName, spark_amps[eff]);
       Serial.println(presets[5].effects[3].EffectName);
       eff++;
-      if (eff > 8) eff = 1;
+      if (eff > 25) eff = 1;
     } 
-    else if (digitalRead(14) == LOW) {
+    else if (digitalRead(27) == LOW) {
+      this_delay = 400;
       spark_io.change_hardware_preset(pre);
       app_io.change_hardware_preset(pre);
       presets[5] = presets[pre];
@@ -274,14 +267,28 @@ void loop() {
       pre++;
       if (pre > 3) pre = 0;
     }
-
-    v1 = analogRead(32) / 256;   // only have 16 values
-    if (v1 != v2) {
-      v2 = v1;
-      spark_io.change_effect_parameter(presets[5].effects[3].EffectName, 0, v1 / 16.0);
-      app_io.change_effect_parameter(presets[5].effects[3].EffectName, 0, v1 / 16.0);
-      printit("<> Param chg");           
+    else if (digitalRead(14) == LOW) {
+      this_delay = 400;
+      spark_io.change_effect(presets[5].effects[2].EffectName, spark_drives[drive]);
+      app_io.change_effect(presets[5].effects[2].EffectName, spark_drives[drive]);
+      strcpy(presets[5].effects[2].EffectName, spark_drives[drive]);
+      Serial.println(presets[5].effects[2].EffectName);
+      drive++;
+      if (drive > 6) drive = 0;
+      
     }
+    for (i = 0; i <= 4; i++) {
+      v[i]=analogRead(pin[i]) / 64;
+      if (abs(v[i] - vo[i]) > 5) {
+        this_delay = 50;
+        vo[i] = v[i];
+        spark_io.change_effect_parameter(presets[5].effects[3].EffectName, i, v[i] / 64.0);
+        app_io.change_effect_parameter(presets[5].effects[3].EffectName, i, v[i] / 64.0);
+        printit("<> Param chg");           
+     
+      }
+    }
+
    count = millis();       
   }
 }

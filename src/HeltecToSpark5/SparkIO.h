@@ -114,6 +114,7 @@ class SparkIO
     uint8_t bt_buf[MAX_BT_BUFFER];
     int bt_pos;
     int bt_len;
+    int bt_state;
     
   private:
    
