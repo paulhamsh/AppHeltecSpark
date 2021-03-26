@@ -39,13 +39,13 @@ This allows the app and amp to work together with two Heltec ESP32 boars in betw
 |Switch 1|12||x|
 |Switch 2|14||x|
 |Switch 3|27|2|Switch 2|
-|Switch 4|26||x|
+|Switch 4|26|0|Switch 1|
 |x|||x|
 |x|||x|
-|Pot 1|32|17|Switch 1|
+|Pot 1|32|17|Switch 3|
 |x||5|SER RX|
 |x||18|SER TX|
-|Pot 2|39|23|Switch 3|
+|Pot 2|39|23|x|
 |Pot 3|38|19|Control|
 |Pot 4|37|22|Switch 4|
 |Pot 5|36||x|
