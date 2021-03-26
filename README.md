@@ -5,6 +5,7 @@ This allows the app and amp to work together with two Heltec ESP32 boars in betw
 
 # AppHeltec
 
+|Description|GPIO|GPIO|Description|
 |---|---|---|---|
 |GND|
 |VCC|
