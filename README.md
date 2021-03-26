@@ -7,24 +7,49 @@ This allows the app and amp to work together with two Heltec ESP32 boars in betw
 
 |Description|GPIO|GPIO|Description|
 |---|---|---|---|
-|GND|
-|VCC|
-|x|
-|x|
-|x|
-|RX|12|||
-|TX|14|||
-|x|
-|x|
-|x|
-|x|
-|x|
-|x|
-|x|
-|x|
-|Control|38|
-|x|
-|x|
+|GND|GND|||
+|VCC|3V3|||
+|x||||
+|x||||
+|x||||
+|SER TX|12|||
+|SER RX|14|||
+|x||||
+|x||||
+|x||||
+|x||||
+|x||||
+|x||||
+|x||||
+|x||||
+|Control|38|||
+|x||||
+|x||||
+
+
+# HeltecSpark
+
+|Description|GPIO|GPIO|Description|
+|---|---|---|---|
+|x||GND|GND|
+|x|||x|
+|x||3V3|VCC|
+|x|||x|
+|x|||x|
+|Switch 1|12||x|
+|Switch 2|14||x|
+|Switch 3|27||x|
+|Switch 4|26||x|
+|x||||
+|x||||z
+|Pot 1|32|||
+|x||5|SER RX|
+|x||18|SER TX|
+|Pot 2|39||x|
+|Pot 3|38|19|Control|
+|Pot 4|37||x|
+|Pot 5|36||x|
+
 
 # Example circuit board
 
