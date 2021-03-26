@@ -33,6 +33,7 @@ uint8_t selected_preset;
 
 uint8_t b;
 int i, j, p;
+int found;
 int v[5], vo[5];
 int pin[]{32,37,39,38,36};
 
@@ -53,23 +54,9 @@ char spark_drives[][STR_LEN]{"Booster", "DistortionTS9", //"Overdrive",
                              "GuitarMuff", // "MaestroBassmaster", 
                              "SABdriver"};
 
+char* effects[7];
 
-/*
-byte get_serial[]{0x01, 0xfe, 0x00, 0x00, 0x53, 0xfe, 0x17, 0x00,
-                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                  0xf0, 0x01, 0x01, 0x01, 0x02, 0x23, 0xf7};
 
-byte set_preset[]{0x01, 0xfe, 0x00, 0x00, 0x53, 0xfe, 0x1a, 0x00,
-                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                  0xf0, 0x01, 0x01, 0x01, 0x01, 0x38, 
-                  0x00, 0x00, 0x01, 0xf7}; 
-                  
-byte upd_preset[]{0x01, 0xfe, 0x00, 0x00, 0x41, 0xff, 0x1a, 0x00,
-                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                  0xf0, 0x01, 0x01, 0x01, 0x03, 0x38, 
-                  0x00, 0x00, 0x01, 0xf7}; 
-
-*/
 void printit(char *str) {
   if (scr_line >= 8) {
     Heltec.display->clear();
@@ -142,6 +129,17 @@ void setup() {
     v[i]=0;
     vo[i]=0;
   }
+
+  
+effects[0] = "bias.noisegate";
+effects[1] = "LA2ACompBlueCompCompressorBassCompBBEOpticalComp";
+effects[2] = "BoosterDistortionTS9OverdriveFuzzProCoRatBassBigMuffGuitarMuffMaestroBassmasterSABdriver";
+effects[3] = "RolandJC120TwinADClean94MatchDCV2BassmanAC BoostCheckmateTwoStoneSP50Deluxe65PlexiOverDrivenJM45OverDrivenLuxVerb"
+             "BognerOrangeAD30AmericanHighGainSLO100YJM100RectifierEVHSwitchAxeLeadInvaderBE101AcousticAcousticAmpV2FatAcousticV2"
+             "FlatAcousticGK800Sunny3000W600Hammer500";
+effects[4] = "TremoloChorusAnalogFlangerPhaserVibrato01UniVibeClonerMiniVibeTremolatorTremoloSquare";
+effects[5] = "DelayMonoDelayEchoFiltVintageDelayDelayReverseDelayMultiHeadDelayRe201";
+effects[6] = "bias.reverb";
 }
 
 
@@ -180,7 +178,6 @@ void loop() {
       presets[5] = presets[selected_preset];
       Serial.print("Change to preset: ");
       Serial.println(selected_preset, HEX);
-//      dump_preset(presets[5]);
     }      
     
     if (cmdsub == 0x0327) {
@@ -190,7 +187,6 @@ void loop() {
       presets[selected_preset] = presets[5];
       Serial.print("Store in preset: ");
       Serial.println(selected_preset, HEX);
-//      dump_preset(presets[5]);
     }
 
     if (cmdsub == 0x0310) {
@@ -200,7 +196,6 @@ void loop() {
       presets[5] = presets[selected_preset];
       Serial.print("Hadware preset is: ");
       Serial.println(selected_preset, HEX);
-//      dump_preset(presets[5]);
     }
   }
 
@@ -234,14 +229,22 @@ void loop() {
     }
 
     if (cmdsub == 0x0106) {
-      strcpy(presets[5].effects[3].EffectName, msg.str2);
-      Serial.print("Change to new effect ");
-      Serial.print(msg.str1);
-      Serial.print(" ");
-      Serial.println(msg.str2);
-      dump_preset(presets[5]);
+      found = -1;
+      for (i = 1; found == -1 && i <= 5; i++) {
+        if (strstr(effects[i], msg.str1) != NULL) {
+          Serial.println (i);
+          found = i;
+        }
+      }
+      if (found >= 0) {
+        strcpy(presets[5].effects[found].EffectName, msg.str2);
+        Serial.print("Change to new effect ");
+        Serial.print(msg.str1);
+        Serial.print(" ");
+        Serial.println(msg.str2);
+        dump_preset(presets[5]);        
+      }
     }
-   
   }   
 
   
