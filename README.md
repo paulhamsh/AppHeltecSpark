@@ -3,6 +3,27 @@ Spark 40 control via app, ESP 32 and amp
 
 This allows the app and amp to work together with two Heltec ESP32 boars in between, which allows programmatic control of both app an amp.
 
+v6 controls are:
+
+Sw1   Change up hardware preset   
+Sw3   Change down effect type (amp, drive etc)   
+Sw4   Change up effect type   
+Sw5   Change down effect model (Twin, Roland JC120 etc)
+Sw6   Change up effect model
+
+To operate:
+
+1.  Turn on   
+2.  Press reset on both boards   
+3.  Turn on Spark   
+4.  Wait until connected   
+5.  Turn on App   
+6.  Pair   
+7.  Connect   
+
+Then, use Sw3 and Sw4 to select which effect type to change   
+Use Sw5 and Sw6 to change the model   
+
 # AppHeltec
 
 |Description|GPIO|GPIO|Description|
