@@ -54,3 +54,5 @@ This allows the app and amp to work together with two Heltec ESP32 boars in betw
 # Example circuit board
 
 ![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/pic1.jpg)
+
+![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/pic2.jpg)
