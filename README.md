@@ -86,4 +86,4 @@ Nice version
 
 Freehand version   
 
-![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/image1.jpeg)
+![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/image2.jpeg)
