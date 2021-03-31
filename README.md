@@ -66,8 +66,8 @@ Use Sw5 and Sw6 to change the model
 |Pot 1|32|17|Switch 6|
 |x||5|SER RX|
 |x||18|SER TX|
-|Pot 2|39|23|x|
-|Pot 3|38|19|Control|
+|Pot 3|39|23|x|
+|Pot 2|38|19|Control|
 |Pot 4|37|22|Switch 8|
 |Pot 5|36||x|
 
