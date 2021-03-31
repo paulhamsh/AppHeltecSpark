@@ -80,10 +80,14 @@ Use Sw5 and Sw6 to change the model
 
 # Circuit diagram  
 
+Freehand version   
+
+![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/image2.jpeg)
+
 Nice version   
 
 ![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/image0.jpeg)
 
-Freehand version   
+Better version
 
-![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/image2.jpeg)
+![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/AppSparkCircuit.jpg)
