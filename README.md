@@ -8,7 +8,7 @@ v6 controls are:
 Sw1   Change up hardware preset   
 Sw3   Change down effect type (amp, drive etc)   
 Sw4   Change up effect type   
-Sw5   Change down effect model (Twin, Roland JC120 etc)
+Sw5   Change down effect model (Twin, Roland JC120 etc)    
 Sw6   Change up effect model
 
 To operate:
