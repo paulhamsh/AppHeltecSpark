@@ -82,8 +82,8 @@ Use Sw5 and Sw6 to change the model
 
 Nice version   
 
-![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/image0.jpg)
+![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/image0.jpeg)
 
 Freehand version   
 
-![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/image1.jpg)
+![Example](https://github.com/paulhamsh/AppHeltecSpark/blob/main/image1.jpeg)
