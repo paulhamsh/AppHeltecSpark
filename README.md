@@ -6,6 +6,7 @@ This allows the app and amp to work together with two Heltec ESP32 boars in betw
 v6 controls are:
 
 Sw1   Change up hardware preset   
+Sw2   Change volume up
 Sw3   Change down effect type (amp, drive etc)   
 Sw4   Change up effect type   
 Sw5   Change down effect model (Twin, Roland JC120 etc)    
