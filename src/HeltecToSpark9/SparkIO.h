@@ -89,6 +89,7 @@ class SparkIO
     RingBuffer out_message;
     int om_cmd;
     int om_sub;
+    int out_msg_chksum;
 
     // out_chunk
 
@@ -130,6 +131,7 @@ class SparkIO
     void start_message(int cmdsub);
     void end_message();
     void write_byte(byte b);
+    void write_byte_no_chksum(byte b);
     void write_prefixed_string(const char *str);
     void write_long_string(const char *str);
     void write_string(const char *str);

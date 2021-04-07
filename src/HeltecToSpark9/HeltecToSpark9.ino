@@ -152,10 +152,10 @@ void setup() {
   current_effect = 3;
 
   for (i = 0; i < 5; i++) {
-    v[i]=0;
-    vo[i]=0;
+    v[i]=analogRead(pin[i]) / 64;
+    vo[i]=v[i];
   }
-  
+
   for (i = 0; i < 8; i++) {
     sw_last_milli[i] = 0;
     sw_val[i] = HIGH;
@@ -196,6 +196,7 @@ void loop() {
       if (j == 0x01)
         p = 5;
       presets[p] = preset;
+      dump_preset(preset);
     }
 
     if (cmdsub == 0x0306) {
@@ -224,9 +225,9 @@ void loop() {
       selected_preset = msg.param2;
       j = msg.param1;
       if (selected_preset == 0x7f) 
-        selected_preset=4;
+        selected_preset = 4;
       if (j == 0x01) 
-        selected_preset=5;
+        selected_preset = 5;
       presets[5] = presets[selected_preset];
       Serial.print("Hadware preset is: ");
       Serial.println(selected_preset, HEX);
@@ -254,9 +255,11 @@ void loop() {
     }
 
     if (cmdsub == 0x0138) {
+      if (msg.param1 == 0x01) DEBUG("Got a change to preset 0x100 from the app");
+      
       selected_preset = msg.param2;
       if (selected_preset == 0x7f) 
-        selected_preset=0;
+        selected_preset=4;
       presets[5] = presets[selected_preset];
       Serial.print("Change to preset: ");
       Serial.println(selected_preset, HEX);
@@ -526,4 +529,5 @@ void loop() {
       printit("<> Param chg");           
     }
   }
+
 }

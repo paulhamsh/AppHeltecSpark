@@ -165,13 +165,19 @@ void SparkIO::process_in_blocks() {
       rb_state++;
     }
     // check every other byte in the block header for a match to the header standard
-    else if (rb_state > 0 && rb_state < 16) {
+    else if (rb_state >= 0 && rb_state < 16) {
       if (b == chunk_header_from_spark[rb_state]) {
         rb_state++;
       }
       else {
-        rb_state = 0;
-        DEBUG("Bad block header");
+        Serial.print (rb_state);
+        Serial.print(" ");
+        Serial.print(b);
+        Serial.print(" ");
+        Serial.print(rb_len);
+        Serial.println();
+        rb_state = -1;
+        DEBUG("SparkIO bad block header");
       }
     } 
     // and once past the header just read the next bytes as defined by rb_len
@@ -189,9 +195,9 @@ void SparkIO::process_in_blocks() {
     // and resets the state to 0 it can be processed here for that byte - saves missing the 
     // first byte of the header if that was misplaced
     
-    if (rb_state == 0) 
+    if (rb_state == -1) 
       if (b == chunk_header_from_spark[0]) 
-        rb_state++;
+        rb_state = 1;
   }
 }
 
@@ -499,7 +505,7 @@ bool SparkIO::get_message(unsigned int *cmdsub, SparkMessage *msg, SparkPreset *
           read_float(&preset->effects[j].Parameters[i]);
         }
       }
-      read_byte(&preset->end_filler);  
+      read_byte(&preset->chksum);  
       break;
     case 0x0401:
     case 0x0438:
@@ -538,6 +544,8 @@ void SparkIO::start_message(int cmdsub)
   out_message.add(om_sub);
   out_message.add(0);      // placeholder for length
   out_message.add(0);      // placeholder for length
+
+  out_msg_chksum = 0;
 }
 
 
@@ -554,10 +562,15 @@ void SparkIO::end_message()
   out_message.commit();
 }
 
+void SparkIO::write_byte_no_chksum(byte b)
+{
+  out_message.add(b);
+}
 
 void SparkIO::write_byte(byte b)
 {
   out_message.add(b);
+  out_msg_chksum += int(b);
 }
 
 void SparkIO::write_prefixed_string(const char *str)
@@ -705,8 +718,8 @@ void SparkIO::create_preset(SparkPreset *preset)
 
   start_message (0x0101);
 
-  write_byte (0x00);
-  write_byte (preset->preset_num);   
+  write_byte_no_chksum (0x00);
+  write_byte_no_chksum (preset->preset_num);   
   write_long_string (preset->UUID);
   write_string (preset->Name);
   write_string (preset->Version);
@@ -734,7 +747,9 @@ void SparkIO::create_preset(SparkPreset *preset)
       write_float (preset->effects[i].Parameters[j]);
     }
   }
-  write_byte (preset->end_filler);  
+  write_byte_no_chksum (uint8_t(out_msg_chksum % 256));  
+  Serial.print("CHECKSUM ");
+  Serial.println(uint8_t(out_msg_chksum % 256));
   end_message();
 }
 
