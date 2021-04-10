@@ -204,6 +204,15 @@ void loop() {
       Serial.print("Change to amp model ");
       Serial.println(presets[5].effects[3].EffectName);
     }
+
+    if (cmdsub == 0x0337) {
+      Serial.print("Change model parameter ");
+      Serial.print(msg.str1);
+      Serial.print(" ");
+      Serial.print(msg.param1);   
+      Serial.print(" ");   
+      Serial.println(msg.val);
+    }
     
     if (cmdsub == 0x0338) {
       selected_preset = msg.param2;
@@ -244,6 +253,15 @@ void loop() {
 
     if (cmdsub == 0x022f) 
       app_connected = true;
+    
+    if (cmdsub == 0x0104) {
+      Serial.print("Change model parameter ");
+      Serial.print(msg.str1);
+      Serial.print(" ");
+      Serial.print(msg.param1);   
+      Serial.print(" ");   
+      Serial.println(msg.val);
+    }    
     
     if (cmdsub == 0x0101) {
       p = preset.preset_num;
